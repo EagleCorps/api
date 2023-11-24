@@ -1,0 +1,188 @@
+table:
+  name: user_user_relationship_states
+  schema: public
+object_relationships:
+  - name: userUserRelationship
+    using:
+      foreign_key_constraint_on: user_user_relationship_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        _or:
+          - _and:
+              - userUserRelationship:
+                  source_user_id:
+                    _eq: X-Hasura-User-Id
+              - _or:
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: block
+                      - type:
+                          _eq: is_active
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: follow
+                      - type:
+                          _eq: is_active
+          - _and:
+              - userUserRelationship:
+                  targetUser:
+                    id:
+                      _eq: X-Hasura-User-Id
+                  type:
+                    _eq: follow
+              - type:
+                  _in:
+                    - is_approved
+                    - is_ignored
+      columns:
+        - type
+        - user_user_relationship_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - type
+        - created_at
+        - updated_at
+        - id
+        - user_user_relationship_id
+      filter:
+        _or:
+          - _and:
+              - userUserRelationship:
+                  source_user_id:
+                    _eq: X-Hasura-User-Id
+              - _or:
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: block
+                      - type:
+                          _eq: is_active
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: follow
+                      - type:
+                          _in:
+                            - is_active
+                            - is_approved
+          - _and:
+              - userUserRelationship:
+                  targetUser:
+                    id:
+                      _eq: X-Hasura-User-Id
+                  type:
+                    _eq: follow
+              - type:
+                  _in:
+                    - is_active
+                    - is_approved
+                    - is_ignored
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - updated_at
+      filter:
+        _or:
+          - _and:
+              - userUserRelationship:
+                  source_user_id:
+                    _eq: X-Hasura-User-Id
+              - _or:
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: block
+                      - type:
+                          _eq: is_active
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: follow
+                      - type:
+                          _eq: is_active
+          - _and:
+              - userUserRelationship:
+                  targetUser:
+                    id:
+                      _eq: X-Hasura-User-Id
+                  type:
+                    _eq: follow
+              - type:
+                  _in:
+                    - is_approved
+                    - is_ignored
+      check:
+        _or:
+          - _and:
+              - userUserRelationship:
+                  source_user_id:
+                    _eq: X-Hasura-User-Id
+              - _or:
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: block
+                      - type:
+                          _eq: is_active
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: follow
+                      - type:
+                          _eq: is_active
+          - _and:
+              - userUserRelationship:
+                  targetUser:
+                    id:
+                      _eq: X-Hasura-User-Id
+                  type:
+                    _eq: follow
+              - type:
+                  _in:
+                    - is_approved
+                    - is_ignored
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        _or:
+          - _and:
+              - userUserRelationship:
+                  source_user_id:
+                    _eq: X-Hasura-User-Id
+              - _or:
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: block
+                      - type:
+                          _eq: is_active
+                  - _and:
+                      - userUserRelationship:
+                          type:
+                            _eq: follow
+                      - type:
+                          _eq: is_active
+          - _and:
+              - userUserRelationship:
+                  targetUser:
+                    id:
+                      _eq: X-Hasura-User-Id
+                  type:
+                    _eq: follow
+              - type:
+                  _in:
+                    - is_approved
+                    - is_ignored
+    comment: ""

@@ -1,0 +1,182 @@
+table:
+  name: comments
+  schema: public
+object_relationships:
+  - name: author
+    using:
+      foreign_key_constraint_on: author_id
+  - name: objectComment
+    using:
+      foreign_key_constraint_on: object_comment_id
+  - name: post
+    using:
+      foreign_key_constraint_on: post_id
+array_relationships:
+  - name: commentReactions
+    using:
+      foreign_key_constraint_on:
+        column: comment_id
+        table:
+          name: comment_reactions
+          schema: public
+  - name: subjectComments
+    using:
+      foreign_key_constraint_on:
+        column: object_comment_id
+        table:
+          name: comments
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        _and:
+          - author_id:
+              _eq: X-Hasura-User-Id
+          - _or:
+              - object_comment_id:
+                  _is_null: true
+              - objectComment:
+                  is_archived:
+                    _eq: false
+          - post:
+              author:
+                _or:
+                  - _and:
+                      - userTargetUserRelationships:
+                          _and:
+                            - type:
+                                _eq: follow
+                            - source_user_id:
+                                _eq: X-Hasura-User-Id
+                            - states:
+                                type:
+                                  _eq: is_active
+                            - states:
+                                type:
+                                  _eq: is_approved
+                      - _not:
+                          userSourceUserRelationships:
+                            _and:
+                              - type:
+                                  _eq: block
+                              - target_user_id:
+                                  _eq: X-Hasura-User-Id
+                              - states:
+                                  type:
+                                    _eq: is_active
+                  - id:
+                      _eq: X-Hasura-User-Id
+          - _not:
+              _or:
+                - objectComment:
+                    author:
+                      userSourceUserRelationships:
+                        _and:
+                          - type:
+                              _eq: block
+                          - target_user_id:
+                              _eq: X-Hasura-User-Id
+                          - states:
+                              type:
+                                _eq: is_active
+      columns:
+        - author_id
+        - body
+        - is_archived
+        - object_comment_id
+        - post_id
+    comment: only allow insertion of comments authored by the current user, on posts visible by the current user and not in reply to comments authored by users who have blocked the current user
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - author_id
+        - body
+        - created_at
+        - id
+        - is_archived
+        - object_comment_id
+        - post_id
+        - updated_at
+      filter:
+        _or:
+          - author_id:
+              _eq: X-Hasura-User-Id
+          - _and:
+              - post:
+                  author:
+                    _or:
+                      - _and:
+                          - userTargetUserRelationships:
+                              _and:
+                                - type:
+                                    _eq: follow
+                                - source_user_id:
+                                    _eq: X-Hasura-User-Id
+                                - states:
+                                    type:
+                                      _eq: is_active
+                                - states:
+                                    type:
+                                      _eq: is_approved
+                          - _not:
+                              userSourceUserRelationships:
+                                _and:
+                                  - type:
+                                      _eq: block
+                                  - target_user_id:
+                                      _eq: X-Hasura-User-Id
+                                  - states:
+                                      type:
+                                        _eq: is_active
+                      - id:
+                          _eq: X-Hasura-User-Id
+              - _not:
+                  _or:
+                    - is_archived:
+                        _eq: true
+                    - author:
+                        userSourceUserRelationships:
+                          _and:
+                            - type:
+                                _eq: block
+                            - target_user_id:
+                                _eq: X-Hasura-User-Id
+                            - states:
+                                type:
+                                  _eq: is_active
+                    - objectComment:
+                        author:
+                          userSourceUserRelationships:
+                            _and:
+                              - type:
+                                  _eq: block
+                              - target_user_id:
+                                  _eq: X-Hasura-User-Id
+                              - states:
+                                  type:
+                                    _eq: is_active
+      allow_aggregations: true
+    comment: allow selection of comments that were either authored by the current user or on a post visible to the current user and not authored by someone who has blocked the current user or in reply to a comment by a user who has blocked the current user
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - body
+        - is_archived
+        - updated_at
+      filter:
+        author_id:
+          _eq: X-Hasura-User-Id
+      check:
+        author_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        author_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

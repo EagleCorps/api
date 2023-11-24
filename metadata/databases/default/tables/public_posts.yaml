@@ -1,0 +1,108 @@
+table:
+  name: posts
+  schema: public
+object_relationships:
+  - name: author
+    using:
+      foreign_key_constraint_on: author_id
+array_relationships:
+  - name: comments
+    using:
+      foreign_key_constraint_on:
+        column: post_id
+        table:
+          name: comments
+          schema: public
+  - name: postImageRelationships
+    using:
+      foreign_key_constraint_on:
+        column: post_id
+        table:
+          name: post_image_relationships
+          schema: public
+  - name: postReactions
+    using:
+      foreign_key_constraint_on:
+        column: post_id
+        table:
+          name: post_reactions
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        author_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - author_id
+        - body
+        - is_archived
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - is_archived
+        - body
+        - created_at
+        - updated_at
+        - author_id
+        - id
+      filter:
+        _and:
+          - _not:
+              _or:
+                - author:
+                    userSourceUserRelationships:
+                      _and:
+                        - type:
+                            _eq: block
+                        - target_user_id:
+                            _eq: X-Hasura-User-Id
+                        - states:
+                            type:
+                              _eq: is_active
+          - _or:
+              - author:
+                  _or:
+                    - id:
+                        _eq: X-Hasura-User-Id
+                    - userTargetUserRelationships:
+                        _and:
+                          - type:
+                              _eq: follow
+                          - source_user_id:
+                              _eq: X-Hasura-User-Id
+                          - states:
+                              type:
+                                _eq: is_active
+                          - states:
+                              type:
+                                _eq: is_approved
+              - postImageRelationships:
+                  image:
+                    uploader_id:
+                      _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: allow selection of posts which were authored by users who have not blocked the current user and (whose author is followed (actively and approvedly) by the current user or which has an image which was shared by the current user)
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - body
+        - is_archived
+        - updated_at
+      filter:
+        author_id:
+          _eq: X-Hasura-User-Id
+      check:
+        author_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        author_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

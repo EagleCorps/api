@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+dc logs -f app

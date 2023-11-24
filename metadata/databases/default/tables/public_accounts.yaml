@@ -1,0 +1,28 @@
+table:
+  name: accounts
+  schema: public
+object_relationships:
+  - name: providerType
+    using:
+      foreign_key_constraint_on: type
+  - name: user
+    using:
+      foreign_key_constraint_on: userId
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - expires_at
+        - id
+        - provider
+        - providerAccountId
+        - scope
+        - session_state
+        - token_type
+        - type
+        - userId
+      filter:
+        userId:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""

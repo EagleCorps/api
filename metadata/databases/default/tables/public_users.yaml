@@ -1,0 +1,101 @@
+table:
+  name: users
+  schema: public
+object_relationships:
+  - name: profileImage
+    using:
+      foreign_key_constraint_on: profile_image_id
+array_relationships:
+  - name: accounts
+    using:
+      foreign_key_constraint_on:
+        column: userId
+        table:
+          name: accounts
+          schema: public
+  - name: commentReactions
+    using:
+      foreign_key_constraint_on:
+        column: reactor_id
+        table:
+          name: comment_reactions
+          schema: public
+  - name: comments
+    using:
+      foreign_key_constraint_on:
+        column: author_id
+        table:
+          name: comments
+          schema: public
+  - name: postReactions
+    using:
+      foreign_key_constraint_on:
+        column: reactor_id
+        table:
+          name: post_reactions
+          schema: public
+  - name: posts
+    using:
+      foreign_key_constraint_on:
+        column: author_id
+        table:
+          name: posts
+          schema: public
+  - name: sessions
+    using:
+      foreign_key_constraint_on:
+        column: userId
+        table:
+          name: sessions
+          schema: public
+  - name: userSourceUserRelationships
+    using:
+      foreign_key_constraint_on:
+        column: source_user_id
+        table:
+          name: user_user_relationships
+          schema: public
+  - name: userTargetUserRelationships
+    using:
+      foreign_key_constraint_on:
+        column: target_user_id
+        table:
+          name: user_user_relationships
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - bio
+        - created_at
+        - emailVerified
+        - id
+        - image
+        - name
+        - profile_image_id
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - bio
+        - image
+        - name
+        - profile_image_id
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+    comment: ""

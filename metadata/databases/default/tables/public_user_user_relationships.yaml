@@ -1,0 +1,92 @@
+table:
+  name: user_user_relationships
+  schema: public
+object_relationships:
+  - name: sourceUser
+    using:
+      foreign_key_constraint_on: source_user_id
+  - name: targetUser
+    using:
+      foreign_key_constraint_on: target_user_id
+array_relationships:
+  - name: states
+    using:
+      foreign_key_constraint_on:
+        column: user_user_relationship_id
+        table:
+          name: user_user_relationship_states
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        source_user_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - source_user_id
+        - target_user_id
+        - type
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - id
+        - source_user_id
+        - target_user_id
+        - type
+        - updated_at
+      filter:
+        _or:
+          - _and:
+              - source_user_id:
+                  _eq: X-Hasura-User-Id
+              - _or:
+                  - _and:
+                      - type:
+                          _eq: follow
+                      - states:
+                          type:
+                            _in:
+                              - is_active
+                              - is_approved
+                              - is_ignored
+                  - _and:
+                      - type:
+                          _eq: block
+                      - states:
+                          type:
+                            _eq: is_active
+          - _and:
+              - target_user_id:
+                  _eq: X-Hasura-User-Id
+              - _and:
+                  - type:
+                      _eq: follow
+                  - states:
+                      type:
+                        _in:
+                          - is_active
+                          - is_approved
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - updated_at
+      filter:
+        source_user_id:
+          _eq: X-Hasura-User-Id
+      check:
+        source_user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        source_user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

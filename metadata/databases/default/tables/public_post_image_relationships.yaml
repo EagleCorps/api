@@ -1,0 +1,90 @@
+table:
+  name: post_image_relationships
+  schema: public
+object_relationships:
+  - name: image
+    using:
+      foreign_key_constraint_on: image_id
+  - name: post
+    using:
+      foreign_key_constraint_on: post_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        post:
+          author_id:
+            _eq: X-Hasura-User-Id
+      columns:
+        - image_id
+        - is_featured
+        - post_id
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - is_featured
+        - created_at
+        - updated_at
+        - id
+        - image_id
+        - post_id
+      filter:
+        _or:
+          - image:
+              uploader_id:
+                _eq: X-Hasura-User-Id
+          - post:
+              author:
+                _or:
+                  - id:
+                      _eq: X-Hasura-User-Id
+                  - _and:
+                      - userTargetUserRelationships:
+                          _and:
+                            - type:
+                                _eq: follow
+                            - source_user_id:
+                                _eq: X-Hasura-User-Id
+                            - states:
+                                type:
+                                  _eq: is_active
+                            - states:
+                                type:
+                                  _eq: is_approved
+                      - _not:
+                          userSourceUserRelationships:
+                            _and:
+                              - type:
+                                  _eq: block
+                              - target_user_id:
+                                  _eq: X-Hasura-User-Id
+                              - states:
+                                  type:
+                                    _eq: is_active
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - is_featured
+      filter:
+        post:
+          author_id:
+            _eq: X-Hasura-User-Id
+      check:
+        post:
+          author_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        post:
+          author_id:
+            _eq: X-Hasura-User-Id
+    comment: ""

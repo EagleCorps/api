@@ -1,0 +1,3 @@
+#!/bin/zsh
+
+dc up -dV --build && ${0:A:h}/app-logs

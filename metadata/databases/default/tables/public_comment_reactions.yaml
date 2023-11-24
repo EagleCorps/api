@@ -1,0 +1,165 @@
+table:
+  name: comment_reactions
+  schema: public
+object_relationships:
+  - name: comment
+    using:
+      foreign_key_constraint_on: comment_id
+  - name: reactor
+    using:
+      foreign_key_constraint_on: reactor_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        _and:
+          - reactor_id:
+              _eq: X-Hasura-User-Id
+          - comment:
+              _and:
+                - _not:
+                    is_archived:
+                      _eq: true
+                - _or:
+                    - author_id:
+                        _eq: X-Hasura-User-Id
+                    - _and:
+                        - post:
+                            author:
+                              _or:
+                                - id:
+                                    _eq: X-Hasura-User-Id
+                                - _and:
+                                    - userTargetUserRelationships:
+                                        _and:
+                                          - type:
+                                              _eq: follow
+                                          - source_user_id:
+                                              _eq: X-Hasura-User-Id
+                                          - states:
+                                              type:
+                                                _eq: is_active
+                                          - states:
+                                              type:
+                                                _eq: is_approved
+                                    - _not:
+                                        userSourceUserRelationships:
+                                          _and:
+                                            - type:
+                                                _eq: block
+                                            - target_user_id:
+                                                _eq: X-Hasura-User-Id
+                                            - states:
+                                                type:
+                                                  _eq: is_active
+                        - _not:
+                            author:
+                              userSourceUserRelationships:
+                                _and:
+                                  - type:
+                                      _eq: block
+                                  - target_user_id:
+                                      _eq: X-Hasura-User-Id
+                                  - states:
+                                      type:
+                                        _eq: is_active
+      columns:
+        - comment_id
+        - reactor_id
+        - type
+    comment: allow insertions of reactions where the reactor is the current user and the subject comment can be seen by the current user
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - type
+        - created_at
+        - updated_at
+        - comment_id
+        - id
+        - reactor_id
+      filter:
+        _or:
+          - reactor_id:
+              _eq: X-Hasura-User-Id
+          - _and:
+              - comment:
+                  _or:
+                    - author_id:
+                        _eq: X-Hasura-User-Id
+                    - _and:
+                        - post:
+                            author:
+                              _or:
+                                - id:
+                                    _eq: X-Hasura-User-Id
+                                - _and:
+                                    - userTargetUserRelationships:
+                                        _and:
+                                          - type:
+                                              _eq: follow
+                                          - source_user_id:
+                                              _eq: X-Hasura-User-Id
+                                          - states:
+                                              type:
+                                                _eq: is_active
+                                          - states:
+                                              type:
+                                                _eq: is_approved
+                                    - _not:
+                                        userSourceUserRelationships:
+                                          _and:
+                                            - type:
+                                                _eq: block
+                                            - target_user_id:
+                                                _eq: X-Hasura-User-Id
+                                            - states:
+                                                type:
+                                                  _eq: is_active
+                        - _not:
+                            _or:
+                              - is_archived:
+                                  _eq: true
+                              - author:
+                                  userSourceUserRelationships:
+                                    _and:
+                                      - type:
+                                          _eq: block
+                                      - target_user_id:
+                                          _eq: X-Hasura-User-Id
+                                      - states:
+                                          type:
+                                            _eq: is_active
+              - _not:
+                  reactor:
+                    userSourceUserRelationships:
+                      _and:
+                        - type:
+                            _eq: block
+                        - target_user_id:
+                            _eq: X-Hasura-User-Id
+                        - states:
+                            type:
+                              _eq: is_active
+      allow_aggregations: true
+    comment: allow selection of any reactions made by the current user or on a comment that the current user can see, but not made by anyone who has blocked by the current user
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - type
+        - updated_at
+      filter:
+        reactor_id:
+          _eq: X-Hasura-User-Id
+      check:
+        reactor_id:
+          _eq: X-Hasura-User-Id
+    comment: allow update of reactions made by the current user
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        reactor_id:
+          _eq: X-Hasura-User-Id
+    comment: allow deletion of reactions made by the current user

@@ -1,0 +1,20 @@
+table:
+  name: provider_type
+  schema: public
+is_enum: true
+array_relationships:
+  - name: accounts
+    using:
+      foreign_key_constraint_on:
+        column: type
+        table:
+          name: accounts
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - value
+      filter: {}
+      allow_aggregations: true
+    comment: ""

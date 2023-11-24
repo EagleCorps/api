@@ -1,0 +1,13 @@
+table:
+  name: user_user_relationship_state_types
+  schema: public
+is_enum: true
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - description
+        - value
+      filter: {}
+      allow_aggregations: true
+    comment: ""

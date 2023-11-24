@@ -1,0 +1,111 @@
+table:
+  name: images
+  schema: public
+object_relationships:
+  - name: uploader
+    using:
+      foreign_key_constraint_on: uploader_id
+array_relationships:
+  - name: postImageRelationships
+    using:
+      foreign_key_constraint_on:
+        column: image_id
+        table:
+          name: post_image_relationships
+          schema: public
+  - name: users
+    using:
+      foreign_key_constraint_on:
+        column: profile_image_id
+        table:
+          name: users
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        uploader_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - alt_text
+        - description
+        - height
+        - uploader_id
+        - url
+        - width
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - alt_text
+        - created_at
+        - description
+        - height
+        - id
+        - updated_at
+        - uploader_id
+        - url
+        - width
+      filter:
+        _or:
+          - uploader_id:
+              _eq: X-Hasura-User-Id
+          - users:
+              id:
+                _is_null: false
+          - postImageRelationships:
+              post:
+                author:
+                  _or:
+                    - id:
+                        _eq: X-Hasura-User-Id
+                    - _and:
+                        - userTargetUserRelationships:
+                            _and:
+                              - type:
+                                  _eq: follow
+                              - source_user_id:
+                                  _eq: X-Hasura-User-Id
+                              - states:
+                                  type:
+                                    _eq: is_active
+                              - states:
+                                  type:
+                                    _eq: is_approved
+                        - _not:
+                            userSourceUserRelationships:
+                              _and:
+                                - type:
+                                    _eq: block
+                                - target_user_id:
+                                    _eq: X-Hasura-User-Id
+                                - states:
+                                    type:
+                                      _eq: is_active
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - alt_text
+        - description
+        - height
+        - updated_at
+        - url
+        - width
+      filter:
+        uploader_id:
+          _eq: X-Hasura-User-Id
+      check:
+        uploader_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        uploader_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
