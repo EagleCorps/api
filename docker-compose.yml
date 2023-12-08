@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
 
   graphql-engine:
-    image: hasura/graphql-engine:v2.33.0.cli-migrations-v3
+    image: hasura/graphql-engine:v2.35.1.cli-migrations-v3
     container_name: eaglecorps-graphql-engine
     ports:
       - "8080:8080"
@@ -37,6 +37,7 @@ services:
       HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "naming_convention"
       HASURA_GRAPHQL_ENABLE_TELEMETRY: false
       HASURA_GRAPHQL_JWT_SECRET: '{"jwk_url": "http://app:3000/api/.well-known/jwks.json"}'
+      HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION: "graphql-default"
     depends_on:
       data-connector-agent:
         condition: service_healthy
