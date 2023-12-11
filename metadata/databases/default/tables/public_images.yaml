@@ -27,9 +27,10 @@ insert_permissions:
         uploader_id:
           _eq: X-Hasura-User-Id
       columns:
-        - alt_text
+        - blur_data_url
         - description
         - height
+        - name
         - uploader_id
         - url
         - width
@@ -38,11 +39,12 @@ select_permissions:
   - role: user
     permission:
       columns:
-        - alt_text
+        - blur_data_url
         - created_at
         - description
         - height
         - id
+        - name
         - updated_at
         - uploader_id
         - url
@@ -89,9 +91,10 @@ update_permissions:
   - role: user
     permission:
       columns:
-        - alt_text
+        - blur_data_url
         - description
         - height
+        - name
         - updated_at
         - url
         - width

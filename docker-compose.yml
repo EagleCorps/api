@@ -140,14 +140,19 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    volumes:
+      - ../social-app/src:/app/src
     develop:
       watch:
-        - action: sync
-          path: ../social-app
-          target: /app
         - action: rebuild
           path: ../social-app/package-lock.json
           target: /app/package-lock.json
+        - action: rebuild
+          path: ../social-app/package.json
+          target: /app/package.json
+        - action: rebuild
+          path: ../social-app/tsconfig.json
+          target: /app/tsconfig.json
 
 volumes:
   eaglecorps_db_data:

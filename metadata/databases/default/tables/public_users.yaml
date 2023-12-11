@@ -48,6 +48,13 @@ array_relationships:
         table:
           name: sessions
           schema: public
+  - name: uploadedImages
+    using:
+      foreign_key_constraint_on:
+        column: uploader_id
+        table:
+          name: images
+          schema: public
   - name: userSourceUserRelationships
     using:
       foreign_key_constraint_on:
