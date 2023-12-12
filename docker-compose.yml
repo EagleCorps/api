@@ -145,11 +145,14 @@ services:
     develop:
       watch:
         - action: rebuild
+          path: ../social-app/package.json
+          target: /app/package.json
+        - action: rebuild
           path: ../social-app/package-lock.json
           target: /app/package-lock.json
         - action: rebuild
-          path: ../social-app/package.json
-          target: /app/package.json
+          path: ../social-app/next.config.mjs
+          target: /app/next.config.mjs
         - action: rebuild
           path: ../social-app/tsconfig.json
           target: /app/tsconfig.json
