@@ -10,6 +10,19 @@ services:
     environment:
       POSTGRES_PASSWORD: postgrespassword
 
+  pgweb:
+    container_name: pgweb
+    restart: always
+    image: sosedoff/pgweb
+    ports:
+      - "8082:8081"
+    links:
+      - postgres:postgres
+    environment:
+      - PGWEB_DATABASE_URL=postgres://postgres:postgrespassword@postgres:5432/postgres?sslmode=disable
+    depends_on:
+      - postgres
+
   graphql-engine:
     image: hasura/graphql-engine:v2.35.1.cli-migrations-v3
     container_name: eaglecorps-graphql-engine
@@ -107,14 +120,13 @@ services:
   bucket-creator:
     container_name: eaglecorps-bucket-creator
     image: minio/mc
-    restart: always
     depends_on:
       - object-store
     entrypoint: >
       /bin/sh -c "
         /usr/bin/mc config host add objectstore http://object-store:9000 minio Candles1;
         /usr/bin/mc mb --ignore-existing objectstore/user-data;
-        /usr/bin/mc policy download objectstore/user-data;
+        /usr/bin/mc anonymous set download objectstore/user-data;
         exit 0;
       "
 
