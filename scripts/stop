@@ -1,3 +1,3 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
-dc down
+${0:A:h}/dcom down

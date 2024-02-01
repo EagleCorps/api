@@ -1,3 +1,3 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
-dc up -dV --build && ${0:A:h}/app-logs
+${0:A:h}/dcom up -dV --build && ${0:A:h}/app-logs

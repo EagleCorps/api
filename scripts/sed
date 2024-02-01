@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+case $(uname -s) in
+    *[Dd]arwin*) gsed "$@";;
+    *) sed "$@";;
+esac
