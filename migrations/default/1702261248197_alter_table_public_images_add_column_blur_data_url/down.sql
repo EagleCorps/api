@@ -1,4 +1,1 @@
--- Could not auto-generate a down migration.
--- Please write an appropriate down migration for the SQL below:
--- alter table "public"."images" add column "blur_data_url" text
---  null;
+alter table "public"."images" drop column "blur_data_url";
