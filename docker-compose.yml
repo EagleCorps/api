@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
 
   pgweb:
-    container_name: pgweb
+    container_name: eaglecorps-pgweb
     restart: always
     image: sosedoff/pgweb
     ports:
